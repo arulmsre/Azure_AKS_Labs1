@@ -19,6 +19,14 @@ terraform {
       version = "0.9.1"
     }
   }
+
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "AzureAKSLabs_Arul"
+    workspaces {
+      name = "Azure_AKS_Labs1"
+    }
+  }
 }
 
 provider "azurerm" {

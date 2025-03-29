@@ -54,7 +54,7 @@ jobs:
 
       - name: Deploy Application
         run: |
-          az aks get-credentials -n "cluster-bursting-jennet" -g "rg-refined-swine"
+          az aks get-credentials -n "cluster-workable-monarch" -g "rg-splendid-troll"
           kubectl apply -f ./AKSApp/aks-store-quickstart.yaml
           sleep 40
           kubectl get service store-front

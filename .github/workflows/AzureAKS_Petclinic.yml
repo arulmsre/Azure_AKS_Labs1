@@ -57,5 +57,5 @@ jobs:
           az aks get-credentials -n "cluster-workable-monarch" -g "rg-splendid-troll"
           kubectl apply -f ./Petclinic/petclinic-quickstart.yaml
           sleep 40
-          kubectl get service store-front
+          kubectl get service petclinic
           rm -rf ~/.kube

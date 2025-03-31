@@ -1,52 +1,144 @@
-services:
-  config-server:
-    image: springcommunity/spring-petclinic-config-server
-    container_name: config-server
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-I", "http://config-server:8888"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    ports:
-     - 8888:8888
-
-  discovery-server:
-    image: springcommunity/spring-petclinic-discovery-server
-    container_name: discovery-server
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://discovery-server:8761"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    depends_on:
-      config-server:
-        condition: service_healthy
-    ports:
-     - 8761:8761
-
-  customers-service:
-    image: springcommunity/spring-petclinic-customers-service
-    container_name: customers-service
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-    - 8081:8081
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-server
+  template:
+    metadata:
+      labels:
+        app: config-server
+    spec:
+      containers:
+        - name: config-server
+          image: springcommunity/spring-petclinic-config-server
+          resources:
+            limits:
+              memory: "512Mi"
+          ports:
+            - containerPort: 8888
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8888
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server
+spec:
+  selector:
+    app: config-server
+  ports:
+    - protocol: TCP
+      port: 8888
+      targetPort: 8888
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discovery-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discovery-server
+  template:
+    metadata:
+      labels:
+        app: discovery-server
+    spec:
+      containers:
+        - name: discovery-server
+          image: springcommunity/spring-petclinic-discovery-server
+          resources:
+            limits:
+              memory: "512Mi"
+          ports:
+            - containerPort: 8761
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8761
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8761
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: discovery-server
+spec:
+  selector:
+    app: discovery-server
+  ports:
+    - protocol: TCP
+      port: 8761
+      targetPort: 8761
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customers-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customers-service
+  template:
+    metadata:
+      labels:
+        app: customers-service
+    spec:
+      containers:
+        - name: customers-service
+          image: springcommunity/spring-petclinic-customers-service
+          resources:
+            limits:
+              memory: "512Mi"
+          ports:
+            - containerPort: 8081
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customers-service
+spec:
+  selector:
+    app: customers-service
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+  type: ClusterIP
+---
   visits-service:
     image: springcommunity/spring-petclinic-visits-service
     container_name: visits-service
@@ -61,23 +153,70 @@ services:
         condition: service_healthy
     ports:
      - 8082:8082
-
-  vets-service:
-    image: springcommunity/spring-petclinic-vets-service
-    container_name: vets-service
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-     - 8083:8083
-
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: visits-service
+spec:
+  selector:
+    app: visits-service
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vets-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vets-service
+  template:
+    metadata:
+      labels:
+        app: vets-service
+    spec:
+      containers:
+        - name: vets-service
+          image: springcommunity/spring-petclinic-vets-service
+          resources:
+            limits:
+              memory: "512Mi"
+          ports:
+            - containerPort: 8083
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8083
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8083
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vets-service
+spec:
+  selector:
+    app: vets-service
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+  type: ClusterIP
+---
   genai-service:
     image: springcommunity/spring-petclinic-genai-service
     container_name: genai-service
@@ -96,23 +235,70 @@ services:
         condition: service_healthy
     ports:
      - 8084:8084
-
-
-  api-gateway:
-    image: springcommunity/spring-petclinic-api-gateway
-    container_name: api-gateway
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-     - 8080:8080
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: genai-service
+spec:
+  selector:
+    app: genai-service
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: springcommunity/spring-petclinic-api-gateway
+          resources:
+            limits:
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
   tracing-server:
     image: openzipkin/zipkin
     container_name: tracing-server
@@ -125,24 +311,70 @@ services:
     - JAVA_OPTS=-XX:UseSVE=0
     ports:
      - 9411:9411
-
-  admin-server:
-    image: springcommunity/spring-petclinic-admin-server
-    container_name: admin-server
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-     - 9090:9090
-
-  ## Grafana / Prometheus
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tracing-server
+spec:
+  selector:
+    app: tracing-server
+  ports:
+    - protocol: TCP
+      port: 9411
+      targetPort: 9411
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-server
+  template:
+    metadata:
+      labels:
+        app: admin-server
+    spec:
+      containers:
+        - name: admin-server
+          image: springcommunity/spring-petclinic-admin-server
+          resources:
+            limits:
+              memory: "512Mi"
+          ports:
+            - containerPort: 9090
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 9090
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9090
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-server
+spec:
+  selector:
+    app: admin-server
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+  type: ClusterIP
+---
   grafana-server:
     build: ./docker/grafana
     container_name: grafana-server
@@ -152,7 +384,20 @@ services:
           memory: 256M
     ports:
     - 3030:3030
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-server
+spec:
+  selector:
+    app: grafana-server
+  ports:
+    - protocol: TCP
+      port: 3030
+      targetPort: 3030
+  type: ClusterIP
+---
   prometheus-server:
     build: ./docker/prometheus
     container_name: prometheus-server
@@ -162,3 +407,16 @@ services:
           memory: 256M
     ports:
     - 9091:9090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-server
+spec:
+  selector:
+    app: prometheus-server
+  ports:
+    - protocol: TCP
+      port: 9091
+      targetPort: 9090
+  type: ClusterIP

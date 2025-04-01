@@ -226,51 +226,6 @@ spec:
             initialDelaySeconds: 5
             timeoutSeconds: 3
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: vets-service
-spec:
-  selector:
-    app: vets-service
-  ports:
-    - protocol: TCP
-      port: 8083
-      targetPort: 8083
-  type: ClusterIP
----
-  genai-service:
-    image: springcommunity/spring-petclinic-genai-service
-    container_name: genai-service
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - AZURE_OPENAI_KEY=${AZURE_OPENAI_KEY}
-      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-     - 8084:8084
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: genai-service
-spec:
-  selector:
-    app: genai-service
-  ports:
-    - protocol: TCP
-      port: 8084
-      targetPort: 8084
-  type: ClusterIP
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -321,18 +276,31 @@ spec:
       targetPort: 8080
   type: LoadBalancer
 ---
-  tracing-server:
-    image: openzipkin/zipkin
-    container_name: tracing-server
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    environment:
-    # Waiting for https://github.com/openzipkin/zipkin/issues/3786
-    - JAVA_OPTS=-XX:UseSVE=0
-    ports:
-     - 9411:9411
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tracing-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tracing-server
+  template:
+    metadata:
+      labels:
+        app: tracing-server
+    spec:
+      containers:
+        - name: tracing-server
+          image: openzipkin/zipkin
+          resources:
+            limits:
+              memory: "512Mi"
+          env:
+            - name: JAVA_OPTS
+              value: "-XX:UseSVE=0"
+          ports:
+            - containerPort: 9411
 ---
 apiVersion: v1
 kind: Service
@@ -397,15 +365,28 @@ spec:
       targetPort: 9090
   type: ClusterIP
 ---
-  grafana-server:
-    build: ./docker/grafana
-    container_name: grafana-server
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-    ports:
-    - 3030:3030
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana-server
+  template:
+    metadata:
+      labels:
+        app: grafana-server
+    spec:
+      containers:
+        - name: grafana-server
+          image: grafana/grafana
+          resources:
+            limits:
+              memory: "256Mi"
+          ports:
+            - containerPort: 3030
 ---
 apiVersion: v1
 kind: Service
@@ -420,15 +401,28 @@ spec:
       targetPort: 3030
   type: ClusterIP
 ---
-  prometheus-server:
-    build: ./docker/prometheus
-    container_name: prometheus-server
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-    ports:
-    - 9091:9090
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-server
+  template:
+    metadata:
+      labels:
+        app: prometheus-server
+    spec:
+      containers:
+        - name: prometheus-server
+          image: your-container-registry/prometheus-server:latest
+          resources:
+            limits:
+              memory: "256Mi"
+          ports:
+            - containerPort: 9090
 ---
 apiVersion: v1
 kind: Service

@@ -436,3 +436,58 @@ spec:
       port: 9091
       targetPort: 9090
   type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:5.7
+          resources:
+            limits:
+              memory: "512Mi"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: ""
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "true"
+            - name: MYSQL_USER
+              value: "petclinic"
+            - name: MYSQL_PASSWORD
+              value: "petclinic"
+            - name: MYSQL_DATABASE
+              value: "petclinic"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-conf
+              mountPath: /etc/mysql/conf.d
+              readOnly: true
+      volumes:
+        - name: mysql-conf
+          hostPath:
+            path: ./conf.d
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP

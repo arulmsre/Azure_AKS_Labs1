@@ -139,20 +139,18 @@ spec:
       targetPort: 8081
   type: ClusterIP
 ---
-  visits-service:
-    image: springcommunity/spring-petclinic-visits-service
-    container_name: visits-service
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-     - 8082:8082
+apiVersion: v1
+kind: Service
+metadata:
+  name: visits-service
+spec:
+  selector:
+    app: visits-service
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service

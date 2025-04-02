@@ -38,46 +38,85 @@ spec:
       targetPort: 3306
   selector:
 ---
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: petmysql-secret-root1
+type: kubernetes.io/basic-auth
+stringData:
+  password: petclinic
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: petclinic-app
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 --file docker-compose.yml convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: spring-petclinic
+  name: spring-petclinic
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: petclinic
+      io.kompose.service: spring-petclinic
+  strategy:
+    type: Recreate
   template:
     metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 --file docker-compose.yml
+          convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
       labels:
-        app: petclinic
+        io.kompose.service: spring-petclinic
     spec:
       containers:
-      - name: petclinic
-        image: subbu7677/petclinic-spring-app:v1
-        ports:
-        - containerPort: 8081
-        env:
-        - name: MYSQL_URL
-          value: jdbc:mysql://mysql-service:3306/petclinic
+      - env:
+        - name: JAVA_TOOL_OPTIONS
+          value: -javaagent:/opentelemetry-javaagent.jar
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          value: http://agent:4317
+        - name: OTEL_SERVICE_NAME
+          value: pet-clinic
+        - name: OTEL_TRACES_EXPORTER
+          value: otlp
+        - name: db_root_password
+          valueFrom:
+            secretKeyRef:
+              name: petmysql-secret-root1
+              key: password
         - name: MYSQL_USER
           value: petclinic
         - name: MYSQL_PASSWORD
           value: petclinic
-        - name: MYSQL_ROOT_PASSWORD
-          value: root
         - name: MYSQL_DATABASE
           value: petclinic
+        image: janajohny/petclinic:v1
+        imagePullPolicy: Always
+        name: spring-petclinic
+        ports:
+        - containerPort: 8182
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: petclinic-service
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 --file docker-compose.yml convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: spring-petclinic
+  name: spring-petclinic
 spec:
-  type: NodePort
   ports:
-  - port: 8081
-    targetPort: 8081
-    nodePort: 30007
+  - name: spring-petclinic
+    port: 8182
+    targetPort: 8182
+    nodePort: 30914
+  type: NodePort
   selector:
-    app: petclinic
+    io.kompose.service: spring-petclinic

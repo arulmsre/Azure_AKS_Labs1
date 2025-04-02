@@ -116,7 +116,6 @@ spec:
   - name: spring-petclinic
     port: 8182
     targetPort: 8182
-    nodePort: 30914
-  type: NodePort
+  type: LoadBalancer
   selector:
     io.kompose.service: spring-petclinic

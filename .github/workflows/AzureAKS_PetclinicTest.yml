@@ -55,4 +55,4 @@ jobs:
       - name: Deploy Application
         run: |
           az aks get-credentials -n "cluster-workable-monarch" -g "rg-splendid-troll"
-          kubectl apply -f ./Petclinic/petclinicTest.yaml
+          kubectl apply -f ./Petclinic/petclinic-app-deployment.yaml

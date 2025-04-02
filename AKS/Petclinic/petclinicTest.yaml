@@ -30,7 +30,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service
+  name: mydb
 spec:
   type: ClusterIP  
   ports:
@@ -75,17 +75,21 @@ spec:
         io.kompose.service: spring-petclinic
     spec:
       containers:
-      - env:
-        - name: MYSQL_USER
-          value: petclinic
-        - name: MYSQL_PASSWORD
-          value: petclinic
-        - name: MYSQL_DATABASE
-          value: petclinic
-        image: janajohny/petclinic:v1
-        imagePullPolicy: Always
-        name: spring-petclinic
-        ports:
+      env:
+      - name: MYSQL_URL
+        value: jdbc:mysql://mydb:3306/petclinic
+      - name: MYSQL_USER
+        value: petclinic
+      - name: MYSQL_PASSWORD
+        value: petclinic
+      - name: MYSQL_ROOT_PASSWORD
+        value: root
+      - name: MYSQL_DATABASE
+        value: petclinic
+      image: janajohny/petclinic:v1
+      imagePullPolicy: Always
+      name: spring-petclinic
+      ports:
         - containerPort: 8182
 ---
 apiVersion: v1

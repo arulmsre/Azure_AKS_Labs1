@@ -53,6 +53,26 @@ spec:
       labels:
         app: petclinic
     spec:
+      initContainers:
+      - name: jar-downloader
+        image: busybox
+        command:
+        - sh
+        - -c
+        - wget -O /tmp/my-app.jar https://github.com/veerajamail/petclinic/blob/develop/opentelemetry-javaagent.jar
+        volumeMounts:
+        - name: jar-volume
+          mountPath: /tmp
+      containers:
+      - name: jar-container
+        image: openjdk:11-jre-slim
+        command: ["java", "-jar", "/tmp/my-app.jar"]
+        volumeMounts:
+        - name: jar-volume
+          mountPath: /tmp
+      volumes:
+      - name: jar-volume
+        emptyDir: {}
       containers:
       - name: petclinic
         image: subbu7677/petclinic-spring-app:v1

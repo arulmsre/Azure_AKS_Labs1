@@ -69,6 +69,10 @@ spec:
           value: root
         - name: MYSQL_DATABASE
           value: petclinic
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        - name: OTEL_SERVICE_NAME
+          value: "petclinic"
 ---
 apiVersion: v1
 kind: Service
@@ -79,6 +83,5 @@ spec:
   ports:
   - port: 8080
     targetPort: 8080
-    nodePort: 30007
   selector:
     app: petclinic

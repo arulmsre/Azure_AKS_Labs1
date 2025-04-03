@@ -77,6 +77,10 @@ spec:
         value: root
       - name: MYSQL_DATABASE
         value: petclinic
+      - name: OTEL_EXPORTER_OTLP_ENDPOINT
+        value: "http://otel-collector:4317"
+      - name: OTEL_SERVICE_NAME
+        value: "petclinic"
       image: janajohny/petclinic:v1
       imagePullPolicy: Always
       name: spring-petclinic

@@ -24,7 +24,7 @@ terraform {
     hostname = "app.terraform.io"
     organization = "AzureAKSLabs_Arul"
     workspaces {
-      name = "Azure_AKS_Labs2"
+      name = "SRE-AKS-TEST"
     }
   }
 }

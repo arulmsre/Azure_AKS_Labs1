@@ -1,4 +1,4 @@
-name: Create Azure AKS With Terraform
+name: AzureAKS
 on:
   workflow_dispatch:
 

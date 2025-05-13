@@ -28,10 +28,6 @@ jobs:
         with:
           terraform_version: latest
           cli_config_credentials_token: ${{ secrets.TFC_TOKEN_ID }}
-
-      - name: Terraform Logout
-        id: logout
-        run: terraform logout
         
       - name: Terraform Init
         id: init

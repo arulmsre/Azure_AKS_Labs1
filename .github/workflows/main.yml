@@ -15,11 +15,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.1.0
-
-      - name: Verify Terraform Authentication
-        id: logout
-        run: terraform logout
-        
+       
       - name: 'Az CLI login'
         uses: azure/login@v1
         with:
@@ -33,6 +29,10 @@ jobs:
           terraform_version: latest
           cli_config_credentials_token: ${{ secrets.TFC_TOKEN_ID }}
 
+      - name: Terraform Logout
+        id: logout
+        run: terraform logout
+        
       - name: Terraform Init
         id: init
         run: terraform init
@@ -44,3 +44,4 @@ jobs:
       - name: Verify Terraform Authentication
         id: login
         run: terraform login
+        

@@ -24,7 +24,7 @@ terraform {
     hostname = "app.terraform.io"
     organization = "AzureAKSLabs_Arul"
     workspaces {
-      name = "AKS-STORE-APP" 
+      name = "AZURE_AKS_CLI" 
     }
   }
 }

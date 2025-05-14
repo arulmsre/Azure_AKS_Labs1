@@ -54,7 +54,7 @@ jobs:
 
       - name: Deploy Application
         run: |
-          az aks get-credentials -n "cluster-workable-monarch" -g "rg-splendid-troll"
+          az aks get-credentials -n "cluster-splendid-hamster" -g "rg-winning-roughy"
           kubectl apply -f ./Petclinic/petclinic-app-deployment.yaml
 
       - name: AKS Monitroing Enabler

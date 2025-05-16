@@ -58,4 +58,6 @@ jobs:
           kubectl apply -f ./AKSApp/aks-store-quickstart.yaml
           sleep 40
           kubectl get service store-front
-          rm -rf ~/.kube
+          helm repo add datadog https://helm.datadoghq.com
+          helm install datadog-operator datadog/datadog-operator
+          kubectl create secret generic datadog-secret --from-literal api-key=026e42a3b49cd7613c1450a56c2d167d

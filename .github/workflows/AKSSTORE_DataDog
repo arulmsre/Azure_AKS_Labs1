@@ -54,7 +54,7 @@ jobs:
 
       - name: Deploy Application
         run: |
-          az aks get-credentials -n "random_pet.azurerm_kubernetes_cluster_name.id" -g "azurerm_resource_group.rg.name"
+          az aks get-credentials -n "cluster-splendid-hamster" -g "rg-winning-roughy"
           kubectl apply -f ./AKSApp/aks-store-quickstart.yaml
           sleep 40
           kubectl get service store-front

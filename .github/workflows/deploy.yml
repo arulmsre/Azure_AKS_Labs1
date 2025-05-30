@@ -1,0 +1,35 @@
+name: Build and Deploy Spring Petclinic
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Clone Petclinic Repository
+        run: |
+          git clone https://github.com/adamquan/petclinic-grafana-o11y.git
+          cd petclinic-grafana-o11y
+
+      - name: Build Spring Boot Application
+        run: |
+          cd petclinic-grafana-o11y
+          ./mvnw package
+
+      - name: Build Docker Image
+        run: |
+          cd petclinic-grafana-o11y
+          docker build -t spring-petclinic .
+
+      - name: Run Services using Docker Compose
+        run: |
+          cd petclinic-grafana-o11y/local
+          docker-compose up -d

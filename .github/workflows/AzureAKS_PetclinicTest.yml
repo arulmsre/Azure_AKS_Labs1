@@ -59,8 +59,7 @@ jobs:
 
       - name: AKS Monitroing Enabler
         run: |
-          az aks get-credentials -n "cluster-splendid-hamster" -g "rg-winning-roughy"
-          kubectl apply -f ./Petclinic/petclinic-quickstart.yaml
+          az aks get-credentials -n "cluster-splendid-hamster" -g "rg1-pro-aardvark"
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo update
           helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace

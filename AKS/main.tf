@@ -23,6 +23,12 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   dns_prefix          = random_pet.azurerm_kubernetes_cluster_dns_prefix.id
   kubernetes_version  = "1.30.6"
 
+
+  # NEW: required for LTS (if provider supports)
+  tier         = "Premium"
+  support_plan = "LTS"   # <-- check your provider's schema name
+
+
   identity {
     type = "SystemAssigned"
   }

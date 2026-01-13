@@ -21,15 +21,10 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   name                = random_pet.azurerm_kubernetes_cluster_name.id
   resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = random_pet.azurerm_kubernetes_cluster_dns_prefix.id
-  kubernetes_version  = "1.30.6"
+  kubernetes_version  = "1.29.5"
 
 
-  # NEW: required for LTS (if provider supports)
-  tier         = "Premium"
-  support_plan = "LTS"   # <-- check your provider's schema name
-
-
-  identity {
+   identity {
     type = "SystemAssigned"
   }
 

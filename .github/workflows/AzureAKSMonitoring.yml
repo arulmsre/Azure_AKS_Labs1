@@ -54,7 +54,7 @@ jobs:
 
       - name: AKS Monitroing Enabler
         run: |
-          az aks get-credentials -n "cluster-splendid-hamster" -g "rg-winning-roughy"
+          az aks get-credentials -n "cluster-splendid-hamster" -g "SRE_Agent"
           kubectl apply -f ./AKSApp/aks-store-quickstart.yaml
           sleep 40
           kubectl get service store-front
